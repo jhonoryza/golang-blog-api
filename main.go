@@ -6,14 +6,17 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"os"
 	"time"
 )
 
 func main() {
-	router := httprouter.New()
-	db, err := sql.Open("pgx", "postgres://postgres:postgres@192.168.18.106:5432/blog?sslmode=disable")
+	// database section
+	_ = godotenv.Load()
+	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
 	exception.PanicIfErr(err)
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
@@ -21,6 +24,8 @@ func main() {
 	db.SetConnMaxLifetime(60 * time.Second)
 	defer db.Close()
 
+	// router section
+	router := httprouter.New()
 	router.PanicHandler = exception.ErrorHandler
 
 	router.GET("/", controller.HomeIndex)
