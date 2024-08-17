@@ -1,0 +1,11 @@
+### Home
+GET http://localhost:8080
+
+### Post Index
+GET http://localhost:8080/api/posts
+
+### Post Show
+GET http://localhost:8080/api/posts/install-multiple-php-version-di-macos
+
+### Post Show Not found
+GET http://localhost:8080/api/posts/random
