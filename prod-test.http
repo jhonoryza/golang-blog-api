@@ -1,0 +1,11 @@
+### Home
+GET https://api-blog.labkita.my.id
+
+### Post Index
+GET https://api-blog.labkita.my.id/api/posts
+
+### Post Show
+GET https://api-blog.labkita.my.id/api/posts/install-multiple-php-version-di-macos
+
+### Post Show Not found
+GET https://api-blog.labkita.my.id/api/posts/random
