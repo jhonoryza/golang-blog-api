@@ -1,0 +1,57 @@
+name: deploy
+
+on: 
+  push:
+    branches: [main]
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Dockerhub login
+      env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+          buildx-version: latest
+    - name: Build dockerfile (with push)
+      run: |
+          docker buildx build \
+          --platform=linux/amd64 \
+          --output "type=image,push=true" \
+          --file ./Dockerfile . \
+          --tag jhonoryza/golang-blog-api:latest
+  
+  deploy:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: deploy
+      uses: Genesys225/cloudflared-service-token-ssh-proxy@V1
+      with:
+        HOST: dell.labkita.my.id
+        USER: ubuntu
+        PORT: 22
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        KEY_TYPE: id_rsa
+        REMOTE_SHELL: 'bash'
+        COMMAND: |
+          docker pull jhonoryza/golang-blog-api:latest
+          cd /media/ubuntu/server_data/docker/golang-blog-api
+          git pull origin main
+          docker compose up -d
+          docker image prune -f
