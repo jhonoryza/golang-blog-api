@@ -2,10 +2,13 @@ package exception
 
 import (
 	"api_blog/response"
+	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/go-playground/validator/v10"
 )
 
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
@@ -27,6 +30,7 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 		Message: "INTERNAL_SERVER_ERROR",
 		Data:    errString,
 	}
+    sentry.CaptureException(errors.New(errString))
 	log.Printf("internal server exception: %v\n", err)
 	resp.ToJson(w)
 }
@@ -61,6 +65,7 @@ func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bo
 			Message: "BAD REQUEST",
 			Data:    exception.Error(),
 		}
+        sentry.CaptureException(errors.New(exception.Error()))
 		resp.ToJson(w)
 		return true
 	}

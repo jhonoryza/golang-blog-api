@@ -5,15 +5,20 @@ import (
 	"api_blog/exception"
 	"database/sql"
 	"fmt"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/getsentry/sentry-go"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
+	"github.com/julienschmidt/httprouter"
 )
 
 func main() {
+    sentry.Init(sentry.ClientOptions{
+        Dsn: os.Getenv("SENTRY_DSN"),
+    })
 	// database section
 	_ = godotenv.Load()
 	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
