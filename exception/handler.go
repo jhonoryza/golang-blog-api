@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/validator/v10"
@@ -31,6 +32,7 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 		Data:    errString,
 	}
     sentry.CaptureException(errors.New(errString))
+    sentry.Flush(2 * time.Second)
 	log.Printf("internal server exception: %v\n", err)
 	resp.ToJson(w)
 }
@@ -66,6 +68,7 @@ func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bo
 			Data:    exception.Error(),
 		}
         sentry.CaptureException(errors.New(exception.Error()))
+        sentry.Flush(2 * time.Second)
 		resp.ToJson(w)
 		return true
 	}
