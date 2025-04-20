@@ -35,7 +35,8 @@ func FindAllTools(ctx context.Context, db *sql.DB) *[]entity.Tool {
 	args := []any{}
 	query := `SELECT id, name, tools.desc, link, is_published, type, created_at, updated_at
 	FROM tools
-	where type = $1`
+	where is_published = true
+	and type = $1`
 
 	args = append(args, typeBy)
 
