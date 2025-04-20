@@ -18,6 +18,20 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	return &PostRepository{DB: db}
 }
 
+func (r *PostRepository) FindOneBySlug(postSlug string) (*entity.Post, error) {
+	query := `
+		select id, title, slug
+		from posts
+		where slug = $1
+	`
+	var post entity.Post
+	err := r.DB.QueryRow(query, postSlug).Scan(&post.Id, &post.Title, &post.Slug)
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
 func (r *PostRepository) FindOneById(ctx context.Context, postSlug *string) *entity.Post {
 	query := `
 	select posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at,
@@ -113,7 +127,7 @@ func (r *PostRepository) Create(req requests.CreatePostRequest) (*entity.Post, e
 		insert into posts (title, summary, content, slug, published_at, created_at, updated_at,
 	 	author_id, is_markdown, image_url, image_tw_url, image_thumb_url)
 		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-		returning id, title, created_at
+		returning id, title, slug, created_at
 	`
 
 	var publishedAt *time.Time
@@ -148,7 +162,7 @@ func (r *PostRepository) Create(req requests.CreatePostRequest) (*entity.Post, e
 	exception.PanicIfErr(err)
 	defer exception.CommitOrRollback(tx)
 
-	err = tx.QueryRow(query, args...).Scan(&post.Id, &post.Title, &post.CreatedAt)
+	err = tx.QueryRow(query, args...).Scan(&post.Id, &post.Title, &post.Slug, &post.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

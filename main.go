@@ -3,6 +3,7 @@ package main
 import (
 	"api_blog/controller"
 	"api_blog/exception"
+	"api_blog/middleware"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -35,12 +36,15 @@ func main() {
 
 	router.GET("/", controller.HomeIndex)
 
+	authController := controller.NewAuthController(db)
+	router.POST("/api/login", authController.Login)
+
 	postController := controller.NewPostController(db)
 	router.GET("/api/posts", postController.Index)
-	router.POST("/api/posts", postController.Store)
 	router.GET("/api/posts/:postSlug", postController.Show)
-	router.PUT("/api/posts/:postSlug", postController.Update)
-	router.DELETE("/api/posts/:postSlug", postController.Delete)
+	router.POST("/api/posts", middleware.AuthMiddleware(db, postController.Store))
+	router.PUT("/api/posts/:postSlug", middleware.AuthMiddleware(db, postController.Update))
+	router.DELETE("/api/posts/:postSlug", middleware.AuthMiddleware(db, postController.Delete))
 
 	toolController := controller.NewToolController(db)
 	router.GET("/api/tools", toolController.Index)

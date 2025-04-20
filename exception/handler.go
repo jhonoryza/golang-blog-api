@@ -13,16 +13,46 @@ import (
 )
 
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
-	if notFoundError(w, r, err) {
+	if NotFoundServerError(w, r, err) {
 		return
 	}
-	if validationError(w, r, err) {
+	if ValidationError(w, r, err) {
 		return
 	}
-	internalServerError(w, r, err)
+	InternalServerError(w, r, err)
 }
 
-func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}) {
+func BadRequestError(w http.ResponseWriter, r *http.Request, err interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+	errString := fmt.Sprintf("%v", err)
+	resp := response.ApiResponse{
+		Code:    http.StatusBadRequest,
+		Message: "BAD REQUEST",
+		Data:    errString,
+	}
+	sentry.CaptureException(errors.New(errString))
+	sentry.Flush(2 * time.Second)
+	log.Printf("bad request exception: %v\n", err)
+	resp.ToJson(w)
+}
+
+func UnauthorizedError(w http.ResponseWriter, r *http.Request, err interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	errString := fmt.Sprintf("%v", err)
+	resp := response.ApiResponse{
+		Code:    http.StatusUnauthorized,
+		Message: "UNAUTHORIZED",
+		Data:    errString,
+	}
+	sentry.CaptureException(errors.New(errString))
+	sentry.Flush(2 * time.Second)
+	log.Printf("unauthorized exception: %v\n", err)
+	resp.ToJson(w)
+}
+
+func InternalServerError(w http.ResponseWriter, r *http.Request, err interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 	errString := fmt.Sprintf("%v", err)
@@ -31,13 +61,13 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 		Message: "INTERNAL_SERVER_ERROR",
 		Data:    errString,
 	}
-    sentry.CaptureException(errors.New(errString))
-    sentry.Flush(2 * time.Second)
+	sentry.CaptureException(errors.New(errString))
+	sentry.Flush(2 * time.Second)
 	log.Printf("internal server exception: %v\n", err)
 	resp.ToJson(w)
 }
 
-func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+func NotFoundServerError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
 	exception, ok := err.(NotFoundError)
 	if !ok {
 		return false
@@ -55,7 +85,7 @@ func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool
 	}
 }
 
-func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+func ValidationError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
 	exception, ok := err.(validator.ValidationErrors)
 	if !ok {
 		return false
@@ -67,8 +97,8 @@ func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bo
 			Message: "BAD REQUEST",
 			Data:    exception.Error(),
 		}
-        sentry.CaptureException(errors.New(exception.Error()))
-        sentry.Flush(2 * time.Second)
+		sentry.CaptureException(errors.New(exception.Error()))
+		sentry.Flush(2 * time.Second)
 		resp.ToJson(w)
 		return true
 	}

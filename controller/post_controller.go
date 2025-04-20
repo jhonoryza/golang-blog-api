@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -105,6 +106,7 @@ func (c *PostController) Store(w http.ResponseWriter, r *http.Request, p httprou
 		Data: map[string]any{
 			"id":         post.Id,
 			"title":      post.Title,
+			"slug":       post.Slug,
 			"created_at": post.CreatedAt.Time.In(time.Local).Format(time.RFC822),
 		},
 	}
@@ -136,6 +138,13 @@ func (c *PostController) Update(w http.ResponseWriter, r *http.Request, p httpro
 	}
 
 	postRepo := repository.NewPostRepository(c.DB)
+	record, err := postRepo.FindOneBySlug(postSlug)
+	if err != nil {
+		exception.BadRequestError(w, r, errors.New("record not found"))
+		return
+	}
+	slog.Info(record.Title)
+
 	post, err := postRepo.Update(req, postSlug)
 	if err != nil {
 		exception.ErrorHandler(w, r, err)
