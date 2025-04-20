@@ -16,9 +16,9 @@ import (
 )
 
 func main() {
-    sentry.Init(sentry.ClientOptions{
-        Dsn: os.Getenv("SENTRY_DSN"),
-    })
+	sentry.Init(sentry.ClientOptions{
+		Dsn: os.Getenv("SENTRY_DSN"),
+	})
 	// database section
 	_ = godotenv.Load()
 	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
@@ -38,6 +38,9 @@ func main() {
 	postController := controller.NewPostController(db)
 	router.GET("/api/posts", postController.Index)
 	router.GET("/api/posts/:postSlug", postController.Show)
+
+	toolController := controller.NewToolController(db)
+	router.GET("/api/tools", toolController.Index)
 
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)

@@ -7,7 +7,7 @@ import (
 	"database/sql"
 )
 
-func FindById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.Post {
+func FindOnePostById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.Post {
 	query := `
 	select posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at,
        is_markdown, is_highlighted, image_url, users.name, string_agg(categories.name, ',') as categories_name
@@ -28,7 +28,7 @@ func FindById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.Post {
 	return &post
 }
 
-func FindAll(ctx context.Context, tx *sql.Tx) *[]entity.Post {
+func FindAllPosts(ctx context.Context, tx *sql.Tx) *[]entity.Post {
 	search := ctx.Value("search").(string)
 	sortBy := ctx.Value("sortBy").(string)
 	sortDir := ctx.Value("sortDir").(string)

@@ -44,7 +44,7 @@ func (postController *PostController) Index(w http.ResponseWriter, r *http.Reque
 	r = r.WithContext(ctx)
 
 	// get all posts
-	posts := repository.FindAll(r.Context(), tx)
+	posts := repository.FindAllPosts(r.Context(), tx)
 	postResponses := response.NewPostResponses(posts)
 
 	// return response
@@ -65,7 +65,7 @@ func (postController *PostController) Show(w http.ResponseWriter, r *http.Reques
 	defer exception.CommitOrRollback(tx)
 
 	// get specific posts
-	post := repository.FindById(r.Context(), tx, &postSlug)
+	post := repository.FindOnePostById(r.Context(), tx, &postSlug)
 	postResponse := response.NewPostResponse(post)
 
 	// return response
