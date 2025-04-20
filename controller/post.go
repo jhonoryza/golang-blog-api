@@ -4,9 +4,11 @@ import (
 	"api_blog/exception"
 	"api_blog/repository"
 	"api_blog/response"
+	"context"
 	"database/sql"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type PostController struct {
@@ -24,6 +26,22 @@ func (postController *PostController) Index(w http.ResponseWriter, r *http.Reque
 	tx, err := postController.DB.Begin()
 	exception.PanicIfErr(err)
 	defer exception.CommitOrRollback(tx)
+
+	search := r.URL.Query().Get("search")
+	sortBy := r.URL.Query().Get("sortBy")
+	sortDir := r.URL.Query().Get("sortDir")
+	if sortDir == "" {
+		sortDir = "desc"
+	}
+	if sortBy == "" {
+		sortBy = "published_at"
+	}
+	// add parameter to context
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, "search", search)
+	ctx = context.WithValue(ctx, "sortBy", sortBy)
+	ctx = context.WithValue(ctx, "sortDir", sortDir)
+	r = r.WithContext(ctx)
 
 	// get all posts
 	posts := repository.FindAll(r.Context(), tx)

@@ -29,18 +29,60 @@ func FindById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.Post {
 }
 
 func FindAll(ctx context.Context, tx *sql.Tx) *[]entity.Post {
+	search := ctx.Value("search").(string)
+	sortBy := ctx.Value("sortBy").(string)
+	sortDir := ctx.Value("sortDir").(string)
+
+	allowedSortBy := map[string]bool{
+		"title":        true,
+		"published_at": true,
+		"author_id":    true,
+	}
+
+	allowedSortDir := map[string]bool{
+		"asc":  true,
+		"desc": true,
+	}
+
+	// Default values kalau input nggak valid
+	if !allowedSortBy[sortBy] {
+		sortBy = "published_at"
+	}
+
+	if !allowedSortDir[sortDir] {
+		sortDir = "desc"
+	}
+
 	query := `
 	select posts.id, title, summary, posts.slug, posts.published_at, author_id,
-       is_highlighted, image_url, users.name, string_agg(categories.name, ',') as categories_name
+							is_highlighted, image_url, users.name, string_agg(categories.name, ',') as categories_name
 	from posts
-			 left join users on posts.author_id = users.id
-			 left join post_categories on posts.id = post_categories.post_id
-			 left join categories on post_categories.category_id = categories.id
-	where posts.published_at is not null 
+				left join users on posts.author_id = users.id
+				left join post_categories on posts.id = post_categories.post_id
+				left join categories on post_categories.category_id = categories.id
+	where posts.published_at is not null
+	`
+
+	args := []any{}
+
+	if search != "" {
+		query += ` AND (lower(title) LIKE lower($1) OR lower(summary) LIKE lower($1))`
+		args = append(args, "%"+search+"%")
+	}
+
+	query += `
 	group by posts.id, title, summary, posts.slug, posts.published_at, author_id, is_highlighted, image_url, users.name
-	order by published_at desc
-			  `
-	rows, err := tx.QueryContext(ctx, query)
+	order by ` + sortBy + ` ` + sortDir + ``
+
+	var rows *sql.Rows
+	var err error
+
+	if len(args) > 0 {
+		rows, err = tx.QueryContext(ctx, query, args...)
+	} else {
+		rows, err = tx.QueryContext(ctx, query)
+	}
+
 	exception.PanicIfErr(err)
 	defer rows.Close()
 
