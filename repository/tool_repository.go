@@ -41,7 +41,7 @@ func FindAllTools(ctx context.Context, db *sql.DB) *[]entity.Tool {
 
 	if search != "" {
 		query += ` AND (lower(name) LIKE lower($2) OR lower(link) LIKE lower($2) OR lower(tools.desc) LIKE lower($2))`
-		args = append(args, "%"+search+"%", "%"+search+"%")
+		args = append(args, "%"+search+"%")
 	}
 	query += " ORDER BY " + sortBy + " " + sortDir
 
