@@ -3,11 +3,15 @@ package controller
 import (
 	"api_blog/exception"
 	"api_blog/repository"
+	"api_blog/requests"
 	"api_blog/response"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"net/http"
+	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -21,12 +25,7 @@ func NewPostController(db *sql.DB) *PostController {
 	}
 }
 
-func (postController *PostController) Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	// transaction
-	tx, err := postController.DB.Begin()
-	exception.PanicIfErr(err)
-	defer exception.CommitOrRollback(tx)
-
+func (c *PostController) Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	search := r.URL.Query().Get("search")
 	sortBy := r.URL.Query().Get("sortBy")
 	sortDir := r.URL.Query().Get("sortDir")
@@ -44,7 +43,8 @@ func (postController *PostController) Index(w http.ResponseWriter, r *http.Reque
 	r = r.WithContext(ctx)
 
 	// get all posts
-	posts := repository.FindAllPosts(r.Context(), tx)
+	postRepo := repository.NewPostRepository(c.DB)
+	posts := postRepo.FindAll(r.Context())
 	postResponses := response.NewPostResponses(posts)
 
 	// return response
@@ -56,16 +56,12 @@ func (postController *PostController) Index(w http.ResponseWriter, r *http.Reque
 	resp.ToJson(w)
 }
 
-func (postController *PostController) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (c *PostController) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	postSlug := p.ByName("postSlug")
 
-	// transaction
-	tx, err := postController.DB.Begin()
-	exception.PanicIfErr(err)
-	defer exception.CommitOrRollback(tx)
-
 	// get specific posts
-	post := repository.FindOnePostById(r.Context(), tx, &postSlug)
+	postRepo := repository.NewPostRepository(c.DB)
+	post := postRepo.FindOneById(r.Context(), &postSlug)
 	postResponse := response.NewPostResponse(post)
 
 	// return response
@@ -74,5 +70,43 @@ func (postController *PostController) Show(w http.ResponseWriter, r *http.Reques
 		Message: "OK",
 		Data:    postResponse,
 	}
+	resp.ToJson(w)
+}
+
+func (c *PostController) Store(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	var req requests.CreatePostRequest
+
+	// decode json body
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	// validate
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	postRepo := repository.NewPostRepository(c.DB)
+	post, err := postRepo.Create(req)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	resp := response.ApiResponse{
+		Code:    201,
+		Message: "OK",
+		Data: map[string]any{
+			"id":         post.Id,
+			"title":      post.Title,
+			"created_at": post.CreatedAt.Time.In(time.Local).Format(time.RFC822),
+		},
+	}
+
 	resp.ToJson(w)
 }

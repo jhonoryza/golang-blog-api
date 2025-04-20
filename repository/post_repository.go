@@ -3,11 +3,22 @@ package repository
 import (
 	"api_blog/entity"
 	"api_blog/exception"
+	"api_blog/requests"
 	"context"
 	"database/sql"
+	"strings"
+	"time"
 )
 
-func FindOnePostById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.Post {
+type PostRepository struct {
+	DB *sql.DB
+}
+
+func NewPostRepository(db *sql.DB) *PostRepository {
+	return &PostRepository{DB: db}
+}
+
+func (r *PostRepository) FindOneById(ctx context.Context, postSlug *string) *entity.Post {
 	query := `
 	select posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at,
        is_markdown, is_highlighted, image_url, users.name, string_agg(categories.name, ',') as categories_name
@@ -19,7 +30,7 @@ func FindOnePostById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.
 	group by posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at, is_markdown, is_highlighted, image_url, users.name
 	`
 
-	row := tx.QueryRowContext(ctx, query, *postSlug)
+	row := r.DB.QueryRowContext(ctx, query, *postSlug)
 	exception.PanicNotFoundIfErr(row.Err())
 
 	var post entity.Post
@@ -28,7 +39,7 @@ func FindOnePostById(ctx context.Context, tx *sql.Tx, postSlug *string) *entity.
 	return &post
 }
 
-func FindAllPosts(ctx context.Context, tx *sql.Tx) *[]entity.Post {
+func (r *PostRepository) FindAll(ctx context.Context) *[]entity.Post {
 	search := ctx.Value("search").(string)
 	sortBy := ctx.Value("sortBy").(string)
 	sortDir := ctx.Value("sortDir").(string)
@@ -78,9 +89,9 @@ func FindAllPosts(ctx context.Context, tx *sql.Tx) *[]entity.Post {
 	var err error
 
 	if len(args) > 0 {
-		rows, err = tx.QueryContext(ctx, query, args...)
+		rows, err = r.DB.QueryContext(ctx, query, args...)
 	} else {
-		rows, err = tx.QueryContext(ctx, query)
+		rows, err = r.DB.QueryContext(ctx, query)
 	}
 
 	exception.PanicIfErr(err)
@@ -95,4 +106,49 @@ func FindAllPosts(ctx context.Context, tx *sql.Tx) *[]entity.Post {
 	}
 
 	return &posts
+}
+
+func (r *PostRepository) Create(req requests.CreatePostRequest) (*entity.Post, error) {
+	query := `
+		insert into posts (title, summary, content, slug, published_at, created_at, updated_at,
+	 	author_id, is_markdown, image_url, image_tw_url, image_thumb_url)
+		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		returning id, title, created_at
+	`
+
+	var publishedAt *time.Time
+	if req.PublishedAt != nil {
+		parsedTime, err := time.Parse(time.DateTime, *req.PublishedAt)
+		if err != nil {
+			return nil, err
+		}
+		publishedAt = &parsedTime
+	}
+
+	var post entity.Post
+	slug := strings.ToLower(req.Title)
+	args := []any{}
+	args = append(args, req.Title)
+	args = append(args, req.Summary)
+	args = append(args, req.Content)
+	args = append(args, slug)
+	args = append(args, publishedAt)
+	args = append(args, time.Now())
+	args = append(args, time.Now())
+	args = append(args, req.AuthorId)
+	args = append(args, req.IsMarkdown)
+	args = append(args, req.ImageUrl)
+	args = append(args, req.ImageTwUrl)
+	args = append(args, req.ImageThumbUrl)
+
+	// transaction
+	tx, err := r.DB.Begin()
+	exception.PanicIfErr(err)
+	defer exception.CommitOrRollback(tx)
+
+	err = tx.QueryRow(query, args...).Scan(&post.Id, &post.Title, &post.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
 }
