@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -105,6 +106,50 @@ func (c *PostController) Store(w http.ResponseWriter, r *http.Request, p httprou
 			"id":         post.Id,
 			"title":      post.Title,
 			"created_at": post.CreatedAt.Time.In(time.Local).Format(time.RFC822),
+		},
+	}
+
+	resp.ToJson(w)
+}
+
+func (c *PostController) Update(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	var req requests.UpdatePostRequest
+	postSlug := p.ByName("postSlug")
+	if postSlug == "" {
+		exception.ErrorHandler(w, r, errors.New("postSlug is required"))
+		return
+	}
+
+	// decode json body
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	// validate
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	postRepo := repository.NewPostRepository(c.DB)
+	post, err := postRepo.Update(req, postSlug)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	resp := response.ApiResponse{
+		Code:    201,
+		Message: "OK",
+		Data: map[string]any{
+			"id":         post.Id,
+			"title":      post.Title,
+			"slug":       post.Slug,
+			"updated_at": post.UpdatedAt.Time.In(time.Local).Format(time.RFC822),
 		},
 	}
 

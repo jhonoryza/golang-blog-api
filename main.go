@@ -36,9 +36,10 @@ func main() {
 	router.GET("/", controller.HomeIndex)
 
 	postController := controller.NewPostController(db)
-	router.POST("/api/posts", postController.Store)
 	router.GET("/api/posts", postController.Index)
+	router.POST("/api/posts", postController.Store)
 	router.GET("/api/posts/:postSlug", postController.Show)
+	router.PUT("/api/posts/:postSlug", postController.Update)
 
 	toolController := controller.NewToolController(db)
 	router.GET("/api/tools", toolController.Index)

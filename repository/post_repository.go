@@ -3,10 +3,10 @@ package repository
 import (
 	"api_blog/entity"
 	"api_blog/exception"
+	"api_blog/helper"
 	"api_blog/requests"
 	"context"
 	"database/sql"
-	"strings"
 	"time"
 )
 
@@ -125,8 +125,10 @@ func (r *PostRepository) Create(req requests.CreatePostRequest) (*entity.Post, e
 		publishedAt = &parsedTime
 	}
 
+	slug := helper.GenerateSlug(req.Title)
+
 	var post entity.Post
-	slug := strings.ToLower(req.Title)
+
 	args := []any{}
 	args = append(args, req.Title)
 	args = append(args, req.Summary)
@@ -147,6 +149,59 @@ func (r *PostRepository) Create(req requests.CreatePostRequest) (*entity.Post, e
 	defer exception.CommitOrRollback(tx)
 
 	err = tx.QueryRow(query, args...).Scan(&post.Id, &post.Title, &post.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+func (r *PostRepository) Update(req requests.UpdatePostRequest, postSlug string) (*entity.Post, error) {
+	query := `
+		update posts
+		set title = $1, slug = $2, summary = $3, content = $4, published_at = $5, updated_at = $6,
+	 	author_id = $7, is_markdown = $8, image_url = $9, image_tw_url = $10, image_thumb_url = $11
+		where slug = $12
+		returning id, title, slug, updated_at
+	`
+
+	var publishedAt *time.Time
+	if req.PublishedAt != nil {
+		parsedTime, err := time.Parse(time.DateTime, *req.PublishedAt)
+		if err != nil {
+			return nil, err
+		}
+		publishedAt = &parsedTime
+	}
+
+	var slug *string = req.Slug
+
+	if slug == nil {
+		newSlug := helper.GenerateSlug(req.Title)
+		slug = &newSlug
+	}
+
+	var post entity.Post
+
+	args := []any{}
+	args = append(args, req.Title)
+	args = append(args, slug)
+	args = append(args, req.Slug)
+	args = append(args, req.Content)
+	args = append(args, publishedAt)
+	args = append(args, time.Now())
+	args = append(args, req.AuthorId)
+	args = append(args, req.IsMarkdown)
+	args = append(args, req.ImageUrl)
+	args = append(args, req.ImageTwUrl)
+	args = append(args, req.ImageThumbUrl)
+	args = append(args, postSlug)
+
+	// transaction
+	tx, err := r.DB.Begin()
+	exception.PanicIfErr(err)
+	defer exception.CommitOrRollback(tx)
+
+	err = tx.QueryRow(query, args...).Scan(&post.Id, &post.Title, &post.Slug, &post.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
