@@ -143,13 +143,38 @@ func (c *PostController) Update(w http.ResponseWriter, r *http.Request, p httpro
 	}
 
 	resp := response.ApiResponse{
-		Code:    201,
+		Code:    200,
 		Message: "OK",
 		Data: map[string]any{
 			"id":         post.Id,
 			"title":      post.Title,
 			"slug":       post.Slug,
 			"updated_at": post.UpdatedAt.Time.In(time.Local).Format(time.RFC822),
+		},
+	}
+
+	resp.ToJson(w)
+}
+
+func (c *PostController) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	postSlug := p.ByName("postSlug")
+	if postSlug == "" {
+		exception.ErrorHandler(w, r, errors.New("postSlug is required"))
+		return
+	}
+
+	postRepo := repository.NewPostRepository(c.DB)
+	rowsAffected, err := postRepo.Delete(postSlug)
+	if err != nil {
+		exception.ErrorHandler(w, r, err)
+		return
+	}
+
+	resp := response.ApiResponse{
+		Code:    200,
+		Message: "OK",
+		Data: map[string]any{
+			"rowsAffected": rowsAffected,
 		},
 	}
 

@@ -40,6 +40,7 @@ func main() {
 	router.POST("/api/posts", postController.Store)
 	router.GET("/api/posts/:postSlug", postController.Show)
 	router.PUT("/api/posts/:postSlug", postController.Update)
+	router.DELETE("/api/posts/:postSlug", postController.Delete)
 
 	toolController := controller.NewToolController(db)
 	router.GET("/api/tools", toolController.Index)

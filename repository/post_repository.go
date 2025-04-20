@@ -207,3 +207,30 @@ func (r *PostRepository) Update(req requests.UpdatePostRequest, postSlug string)
 	}
 	return &post, nil
 }
+
+func (r *PostRepository) Delete(postSlug string) (int64, error) {
+	query := `
+		delete from posts
+		where slug = $1
+	`
+	// transaction
+	tx, err := r.DB.Begin()
+	exception.PanicIfErr(err)
+	defer exception.CommitOrRollback(tx)
+
+	result, err := tx.Exec(query, postSlug)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	if rowsAffected == 0 {
+		return 0, sql.ErrNoRows
+	}
+
+	return rowsAffected, nil
+}
