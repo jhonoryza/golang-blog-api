@@ -27,6 +27,7 @@ jobs:
                   --platform=linux/amd64 \
                   --pull \
                   --file ./Dockerfile . \
+                  --label "org.opencontainers.image.created=$(date --utc +%Y-%m-%dT%H:%M:%SZ)"
                   --tag jhonoryza/golang-blog-api:latest \
                   --push
 
