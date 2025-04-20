@@ -48,6 +48,9 @@ func main() {
 
 	toolController := controller.NewToolController(db)
 	router.GET("/api/tools", toolController.Index)
+	router.POST("/api/tools", middleware.AuthMiddleware(db, toolController.Store))
+	router.PUT("/api/tools/:toolId", middleware.AuthMiddleware(db, toolController.Update))
+	router.DELETE("/api/tools/:toolId", middleware.AuthMiddleware(db, toolController.Delete))
 
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
