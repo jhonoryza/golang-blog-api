@@ -66,12 +66,12 @@ func (c *PrayController) Index(w http.ResponseWriter, r *http.Request, p httprou
 	for _, v := range schedules {
 		temp := Schedule{
 			Date:    v.Date,
-			Fajr:    v.Fajr.Format("2006-06-02 15:04:05"),
-			Sunrise: v.Sunrise.Format("2006-06-02 15:04:05"),
-			Zuhr:    v.Zuhr.Format("2006-06-02 15:04:05"),
-			Asr:     v.Asr.Format("2006-06-02 15:04:05"),
-			Maghrib: v.Maghrib.Format("2006-06-02 15:04:05"),
-			Isha:    v.Isha.Format("2006-06-02 15:04:05"),
+			Fajr:    v.Fajr.Format("15:04:05"),
+			Sunrise: v.Sunrise.Format("15:04:05"),
+			Zuhr:    v.Zuhr.Format("15:04:05"),
+			Asr:     v.Asr.Format("15:04:05"),
+			Maghrib: v.Maghrib.Format("15:04:05"),
+			Isha:    v.Isha.Format("15:04:05"),
 		}
 		data = append(data, temp)
 	}
