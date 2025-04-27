@@ -52,6 +52,12 @@ func main() {
 	router.PUT("/api/tools/:toolId", middleware.AuthMiddleware(db, toolController.Update))
 	router.DELETE("/api/tools/:toolId", middleware.AuthMiddleware(db, toolController.Delete))
 
+	prayController := controller.NewPrayController(db)
+	router.POST("/api/prayers", prayController.Index)
+
+	timeZoneController := controller.NewTimezoneController(db)
+	router.GET("/api/timezones", timeZoneController.Index)
+
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)
