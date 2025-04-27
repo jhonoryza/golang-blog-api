@@ -4,6 +4,8 @@ import (
 	"api_blog/response"
 	"database/sql"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -314,33 +316,34 @@ var projects = []Project{
 	},
 }
 
-var profile = map[string]any{
-	"id":    1,
-	"name":  "Fajar",
-	"role":  "Software Engineer",
-	"image": baseImageUrl + "/fajarsp.jpg",
-	"skills": []string{
-		"AWS", "Linode", "Oracle", "Alibaba", "GCP", "Docker",
-		"PHP", "Laravel", "Go", "Nestjs", "Nodejs", "Javascript",
-		"Flutter", "Rust", "Html", "CSS",
-		"PostgreSQL", "SQLite", "MySQL", "MariaDB",
-	},
-	"bio": "Fajar is a full-stack developer with over 6 years of experience in building scalable web applications and has a strong background in cloud technologies.",
-	"experience": []string{
-		"System Information", "Ticket tracking", "Booking system", "Loyalty system",
-		"Stock management", "E-commerce platform", "etc",
-	},
-	"education": "Bachelor Degree from Physics Department, Padjadjaran University",
-	"socialMedia": map[string]string{
-		"github":   "https://github.com/jhonoryza",
-		"youtube":  "https://www.youtube.com/@labkita",
-		"linkedin": "https://www.linkedin.com/in/fajar-sidik-priatna-8b31a788",
-	},
-	"projectsCount": len(projects),
-	"projects":      projects,
-}
-
 func (c *ProfileController) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	exp := strconv.Itoa(time.Now().Year() - 2019)
+	var profile = map[string]any{
+		"id":    1,
+		"name":  "Fajar",
+		"role":  "Software Engineer",
+		"image": baseImageUrl + "/fajarsp.jpg",
+		"skills": []string{
+			"AWS", "Linode", "Oracle", "Alibaba", "GCP", "Docker",
+			"PHP", "Laravel", "Go", "Nestjs", "Nodejs", "Javascript",
+			"Flutter", "Rust", "Html", "CSS",
+			"PostgreSQL", "SQLite", "MySQL", "MariaDB",
+		},
+		"bio": "Fajar is a full-stack developer with over " + exp + " years of experience in building scalable web applications and has a strong background in cloud technologies.",
+		"experience": []string{
+			"System Information", "Ticket tracking", "Booking system", "Loyalty system",
+			"Stock management", "E-commerce platform", "etc",
+		},
+		"education": "Bachelor Degree from Physics Department, Padjadjaran University",
+		"socialMedia": map[string]string{
+			"github":   "https://github.com/jhonoryza",
+			"youtube":  "https://www.youtube.com/@labkita",
+			"linkedin": "https://www.linkedin.com/in/fajar-sidik-priatna-8b31a788",
+		},
+		"projectsCount": len(projects),
+		"projects":      projects,
+	}
+
 	resp := response.ApiResponse{
 		Code:    http.StatusOK,
 		Message: "OK",
