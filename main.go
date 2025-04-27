@@ -62,6 +62,9 @@ func main() {
 	profileController := controller.NewProfileController(db)
 	router.GET("/api/profile", profileController.Show)
 
+	productController := controller.NewProductController(db)
+	router.GET("/api/products", productController.Index)
+
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)
