@@ -6,9 +6,11 @@ import (
 	"api_blog/response"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/hablullah/go-hijri"
 	"github.com/hablullah/go-prayer"
 	"github.com/julienschmidt/httprouter"
 )
@@ -91,4 +93,24 @@ func (c *PrayController) Index(w http.ResponseWriter, r *http.Request, p httprou
 	}
 
 	resp.ToJson(w)
+}
+
+func (c *PrayController) HijriCalendar(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	hijriDate, _ := hijri.CreateHijriDate(time.Now(), hijri.Default)
+	data := fmt.Sprintf("%v %v %v Hijriyah", hijriDate.Day, getHijriMonthName(hijriDate.Month), hijriDate.Year)
+	resp := &response.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "OK",
+		Data:    data,
+	}
+	resp.ToJson(w)
+}
+
+func getHijriMonthName(month int64) string {
+	months := []string{
+		"Muharram", "Safar", "Rabi'ul Awwal", "Rabi'ul Akhir",
+		"Jumada'ul Awwal", "Jumada'ul Akhir", "Rajab", "Sha'ban",
+		"Ramadhan", "Shawwal", "Dhul Qa'dah", "Dhul Hijjah",
+	}
+	return months[month-1]
 }

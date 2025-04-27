@@ -54,6 +54,7 @@ func main() {
 
 	prayController := controller.NewPrayController(db)
 	router.POST("/api/prayers", prayController.Index)
+	router.GET("/api/hijri/calendar", prayController.HijriCalendar)
 
 	timeZoneController := controller.NewTimezoneController(db)
 	router.GET("/api/timezones", timeZoneController.Index)

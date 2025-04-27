@@ -17,6 +17,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/hablullah/go-hijri v1.0.2 // indirect
 	github.com/hablullah/go-juliandays v1.0.1-0.20220316153050-f56193695a5b // indirect
 	github.com/hablullah/go-sampa v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
