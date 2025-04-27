@@ -59,6 +59,9 @@ func main() {
 	timeZoneController := controller.NewTimezoneController(db)
 	router.GET("/api/timezones", timeZoneController.Index)
 
+	profileController := controller.NewProfileController(db)
+	router.GET("/api/profile", profileController.Show)
+
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)
