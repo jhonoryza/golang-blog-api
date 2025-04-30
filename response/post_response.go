@@ -26,7 +26,7 @@ func NewPostResponses(posts *[]entity.Post) *[]PostResponses {
 		slug := helper.CastNilString(post.Slug)
 		authorName := helper.CastNilString(post.AuthorName)
 		categoriesName := helper.CastNilString(post.CategoriesName)
-		imageUrl := os.Getenv("IMAGE_BASE_URL") + post.ImageUrl
+		imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + post.ImageUrl
 		postResponses = append(postResponses, PostResponses{
 			Id:             post.Id,
 			Title:          post.Title,
@@ -64,7 +64,7 @@ func NewPostResponse(post *entity.Post) *PostResponse {
 	slug := helper.CastNilString(post.Slug)
 	authorName := helper.CastNilString(post.AuthorName)
 	categoriesName := helper.CastNilString(post.CategoriesName)
-	imageUrl := os.Getenv("IMAGE_BASE_URL") + post.ImageUrl
+	imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + post.ImageUrl
 	return &PostResponse{
 		Id:             post.Id,
 		AuthorId:       post.AuthorId,

@@ -39,7 +39,7 @@ type Pricing struct {
 }
 
 func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var baseImageUrl = os.Getenv("IMAGE_BASE_URL")
+	var baseImageUrl = os.Getenv("IMAGE_BASE_URL") + "/blog/image"
 	products := []Product{
 		{
 			ID:          1,

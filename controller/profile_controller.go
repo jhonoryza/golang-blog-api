@@ -32,7 +32,7 @@ type Project struct {
 	Link        string   `json:"link"`
 }
 
-var baseImageUrl = os.Getenv("IMAGE_BASE_URL")
+var baseImageUrl = os.Getenv("IMAGE_BASE_URL") + "/blog/image"
 
 var projects = []Project{
 	{
