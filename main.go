@@ -64,6 +64,7 @@ func main() {
 
 	productController := controller.NewProductController(db)
 	router.GET("/api/products", productController.Index)
+	router.GET("/api/products/:productId", productController.Show)
 
 	serviceController := controller.NewServiceController(db)
 	router.GET("/api/services", serviceController.Index)

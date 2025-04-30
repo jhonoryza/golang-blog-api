@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"api_blog/exception"
 	"api_blog/response"
 	"database/sql"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -39,6 +41,44 @@ type Pricing struct {
 }
 
 func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	products := getProducts()
+	resp := response.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "OK",
+		Data:    products,
+	}
+
+	resp.ToJson(w)
+}
+
+func (c *ProductController) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	productId, err := strconv.Atoi(p.ByName("productId"))
+	if err != nil {
+		exception.BadRequestError(w, r, "BAD REQUEST")
+		return
+	}
+	products := getProducts()
+	var product Product
+	for _, p := range products {
+		if p.ID == productId {
+			product = p
+		}
+	}
+	if product.ID == 0 {
+		exception.BadRequestError(w, r, "BAD REQUEST")
+		return
+	}
+
+	resp := response.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "OK",
+		Data:    product,
+	}
+
+	resp.ToJson(w)
+}
+
+func getProducts() []Product {
 	var baseImageUrl = os.Getenv("IMAGE_BASE_URL") + "/blog/image"
 	products := []Product{
 		{
@@ -122,12 +162,5 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			PolicyURL: "https://labkita.my.id/alquran",
 		},
 	}
-
-	resp := response.ApiResponse{
-		Code:    http.StatusOK,
-		Message: "OK",
-		Data:    products,
-	}
-
-	resp.ToJson(w)
+	return products
 }
