@@ -86,7 +86,7 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			ID:          3,
 			Name:        "Logdesk",
 			Description: "A debugger tools for Laravel developers, improves your debugging experience by sending laravel logs to this app.",
-			Image:       baseImageUrl + "/logdesk.png",
+			Image:       baseImageUrl + "/logdesk2.png",
 			Category:    "Desktop apps",
 			Features: []string{
 				"Logging laravel log in realtime",
