@@ -4,6 +4,7 @@ import (
 	"api_blog/response"
 	"database/sql"
 	"net/http"
+	"os"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -38,7 +39,7 @@ type Pricing struct {
 }
 
 func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var baseImageUrl = "https://minio.labkita.my.id/image"
+	var baseImageUrl = os.Getenv("IMAGE_BASE_URL")
 	products := []Product{
 		{
 			ID:          1,

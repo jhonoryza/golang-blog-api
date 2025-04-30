@@ -4,6 +4,7 @@ import (
 	"api_blog/response"
 	"database/sql"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -31,7 +32,7 @@ type Project struct {
 	Link        string   `json:"link"`
 }
 
-var baseImageUrl = "https://minio.labkita.my.id/image"
+var baseImageUrl = os.Getenv("IMAGE_BASE_URL")
 
 var projects = []Project{
 	{
