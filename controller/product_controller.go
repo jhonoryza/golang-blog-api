@@ -44,7 +44,7 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			ID:          1,
 			Name:        "Tinkering",
 			Description: "A rapid prototyping tool for Laravel developers. easily run PHP code, run PHP, run a Laravel Eloquent query on your database.",
-			Image:       baseImageUrl + "tinkering.png",
+			Image:       baseImageUrl + "/tinkering.png",
 			Category:    "Desktop apps",
 			Features: []string{
 				"Intuitive user interfaces",
@@ -65,7 +65,7 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			ID:          2,
 			Name:        "Reprox",
 			Description: "A tunneling for http and tcp, easily expose your private network to the public",
-			Image:       baseImageUrl + "reprox.png",
+			Image:       baseImageUrl + "/reprox.png",
 			Category:    "CLI apps",
 			Features: []string{
 				"Self hosted",
@@ -85,7 +85,7 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			ID:          3,
 			Name:        "Logdesk",
 			Description: "A debugger tools for Laravel developers, improves your debugging experience by sending laravel logs to this app.",
-			Image:       baseImageUrl + "logdesk.png",
+			Image:       baseImageUrl + "/logdesk.png",
 			Category:    "Desktop apps",
 			Features: []string{
 				"Logging laravel log in realtime",
@@ -103,7 +103,7 @@ func (c *ProductController) Index(w http.ResponseWriter, r *http.Request, p http
 			ID:          4,
 			Name:        "Alquran",
 			Description: "A quran apps, no internet needed, offline mode, no ads, free, qibla direction and qrscanner.",
-			Image:       baseImageUrl + "quran.png",
+			Image:       baseImageUrl + "/quran.png",
 			Category:    "Android apps",
 			Features: []string{
 				"Dark mode",
