@@ -4,7 +4,9 @@ import (
 	"api_blog/controller"
 	"api_blog/exception"
 	"api_blog/middleware"
+	"api_blog/wilayah"
 	"database/sql"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -17,6 +19,14 @@ import (
 )
 
 func main() {
+	isImport := flag.Bool("import", false, "Run wilayah data import")
+	flag.Parse()
+
+	if *isImport {
+		wilayah.RunImport()
+		return
+	}
+
 	sentry.Init(sentry.ClientOptions{
 		Dsn: os.Getenv("SENTRY_DSN"),
 	})
