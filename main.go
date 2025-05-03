@@ -83,6 +83,12 @@ func main() {
 	router.GET("/api/surah", quranController.Index)
 	router.GET("/api/ayah", quranController.Show)
 
+	wilayahController := controller.NewWilayahController(db)
+	router.GET("/api/provinces", wilayahController.Provinces)
+	router.GET("/api/cities", wilayahController.Cities)
+	router.GET("/api/districts", wilayahController.Districts)
+	router.GET("/api/subdistricts", wilayahController.SubDistricts)
+
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)
