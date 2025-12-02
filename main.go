@@ -89,6 +89,29 @@ func main() {
 	router.GET("/api/districts", wilayahController.Districts)
 	router.GET("/api/subdistricts", wilayahController.SubDistricts)
 
+	fs := http.FileServer(http.Dir("./public"))
+	router.Handler("GET", "/public/*filepath", http.StripPrefix("/public/", fs))
+
+	router.GET("/doc", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.ServeFile(w, r, "./public/doc.html")
+	})
+
+	router.GET("/doc/swagger", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.ServeFile(w, r, "./public/swagger.html")
+	})
+
+	router.GET("/doc/redoc", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.ServeFile(w, r, "./public/redoc.html")
+	})
+
+	router.GET("/doc/stoplight", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.ServeFile(w, r, "./public/stoplight.html")
+	})
+
+	router.GET("/doc/scalar", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.ServeFile(w, r, "./public/scalar.html")
+	})
+
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)

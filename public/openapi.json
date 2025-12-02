@@ -1,0 +1,417 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "OpenAPI Labkita",
+        "version": "1.0.0",
+        "description": "API untuk blog, tools, jadwal sholat, waktu, profil, produk, layanan, Al-Qur'an, dan wilayah Indonesia."
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [],
+    "servers": [
+        {
+            "url": "https://api-blog.labkita.my.id",
+            "description": "production"
+        },
+        {
+            "url": "http://localhost:8080",
+            "description": "local"
+        }
+    ],
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Home",
+                "tags": ["Health Check"],
+                "responses": {
+                    "200": {
+                        "description": "Home page"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "summary": "Login user",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil"
+                    }
+                }
+            }
+        },
+        "/api/posts": {
+            "get": {
+                "summary": "Daftar semua post",
+                "tags": ["Posts"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar post"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Buat post baru (auth)",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "title"
+                                    }
+                                },
+                                "required": [
+                                    "title"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Post berhasil dibuat"
+                    }
+                }
+            }
+        },
+        "/api/posts/{postSlug}": {
+            "get": {
+                "summary": "Detail post",
+                "tags": ["Posts"],
+                "parameters": [
+                    {
+                        "name": "postSlug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail post"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update post (auth)",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "postSlug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post berhasil diupdate"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Hapus post (auth)",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "postSlug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post berhasil dihapus"
+                    }
+                }
+            }
+        },
+        "/api/tools": {
+            "get": {
+                "summary": "Daftar tools",
+                "tags": ["Tools"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar tools"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Tambah tool (auth)",
+                "tags": ["Tools"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Tool berhasil ditambah"
+                    }
+                }
+            }
+        },
+        "/api/tools/{toolId}": {
+            "put": {
+                "summary": "Update tool (auth)",
+                "tags": ["Tools"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "toolId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tool berhasil diupdate"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Hapus tool (auth)",
+                "tags": ["Tools"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "toolId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Tool berhasil dihapus"
+                    }
+                }
+            }
+        },
+        "/api/prayers": {
+            "post": {
+                "summary": "Jadwal sholat",
+                "tags": ["Jadwal sholat"],
+                "responses": {
+                    "200": {
+                        "description": "Jadwal sholat"
+                    }
+                }
+            }
+        },
+        "/api/hijri/calendar": {
+            "get": {
+                "summary": "Kalender Hijriyah",
+                "tags": ["Kalender Hijriyah"],
+                "responses": {
+                    "200": {
+                        "description": "Kalender Hijriyah"
+                    }
+                }
+            }
+        },
+        "/api/timezones": {
+            "get": {
+                "summary": "Daftar zona waktu",
+                "tags": ["Zona waktu"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar zona waktu"
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "summary": "Profil user",
+                "tags": ["Profil"],
+                "responses": {
+                    "200": {
+                        "description": "Profil user"
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "summary": "Daftar produk",
+                "tags": ["Produk"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar produk"
+                    }
+                }
+            }
+        },
+        "/api/products/{productId}": {
+            "get": {
+                "summary": "Detail produk",
+                "tags": ["Produk"],
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail produk"
+                    }
+                }
+            }
+        },
+        "/api/services": {
+            "get": {
+                "summary": "Daftar layanan",
+                "tags": ["Layanan"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar layanan"
+                    }
+                }
+            }
+        },
+        "/api/surah": {
+            "get": {
+                "summary": "Daftar surah Al-Qur'an",
+                "tags": ["Al-Qur'an"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar surah"
+                    }
+                }
+            }
+        },
+        "/api/ayah": {
+            "get": {
+                "summary": "Detail ayat Al-Qur'an",
+                "tags": ["Al-Qur'an"],
+                "responses": {
+                    "200": {
+                        "description": "Detail ayat"
+                    }
+                }
+            }
+        },
+        "/api/provinces": {
+            "get": {
+                "summary": "Daftar provinsi",
+                "tags": ["Wilayah"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar provinsi"
+                    }
+                }
+            }
+        },
+        "/api/cities": {
+            "get": {
+                "summary": "Daftar kota",
+                "tags": ["Wilayah"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar kota"
+                    }
+                }
+            }
+        },
+        "/api/districts": {
+            "get": {
+                "summary": "Daftar kecamatan",
+                "tags": ["Wilayah"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar kecamatan"
+                    }
+                }
+            }
+        },
+        "/api/subdistricts": {
+            "get": {
+                "summary": "Daftar kelurahan",
+                "tags": ["Wilayah"],
+                "responses": {
+                    "200": {
+                        "description": "Daftar kelurahan"
+                    }
+                }
+            }
+        }
+    }
+}

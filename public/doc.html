@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>API Documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .wrapper {
+      text-align: center;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: #cbd5e1;
+      margin-bottom: 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 26px 12px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .card:hover {
+      transform: translateY(-5px) scale(1.03);
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .card span.icon {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>API Documentation</h1>
+    <p class="subtitle">Choose your preferred API viewer</p>
+
+    <div class="grid">
+
+      <a class="card" href="/doc/scalar" target="_blank">
+        <span class="icon">📘</span>
+        <div class="card-title">Scalar</div>
+        <div class="card-desc">Modern & elegant API viewer</div>
+      </a>
+
+      <a class="card" href="/doc/swagger" target="_blank">
+        <span class="icon">📗</span>
+        <div class="card-title">Swagger UI</div>
+        <div class="card-desc">Interactive API explorer</div>
+      </a>
+
+      <a class="card" href="/doc/stoplight" target="_blank">
+        <span class="icon">📙</span>
+        <div class="card-title">Stoplight</div>
+        <div class="card-desc">Clean & minimal documentation</div>
+      </a>
+
+      <a class="card" href="/doc/redoc" target="_blank">
+        <span class="icon">📕</span>
+        <div class="card-title">Redoc</div>
+        <div class="card-desc">Simple static API documentation</div>
+      </a>
+
+    </div>
+  </div>
+</body>
+</html>

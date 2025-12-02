@@ -6,10 +6,12 @@ require (
 	github.com/getsentry/sentry-go v0.31.1
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/hablullah/go-hijri v1.0.2
 	github.com/hablullah/go-prayer v1.1.1
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/schollz/progressbar/v3 v3.18.0
 	golang.org/x/crypto v0.19.0
 )
 
@@ -17,7 +19,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/hablullah/go-hijri v1.0.2 // indirect
 	github.com/hablullah/go-juliandays v1.0.1-0.20220316153050-f56193695a5b // indirect
 	github.com/hablullah/go-sampa v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -26,7 +27,6 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/schollz/progressbar/v3 v3.18.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
