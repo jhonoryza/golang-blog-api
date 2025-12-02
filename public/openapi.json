@@ -76,6 +76,26 @@
             "get": {
                 "summary": "Daftar semua post",
                 "tags": ["Posts"],
+                "parameters":[
+                    {
+                        "name": "sortDir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "id"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar post"
@@ -189,6 +209,35 @@
             "get": {
                 "summary": "Daftar tools",
                 "tags": ["Tools"],
+                "parameters":[
+                    {
+                        "name": "sortDir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "id"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "dev tools"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar tools"
@@ -264,6 +313,37 @@
             "post": {
                 "summary": "Jadwal sholat",
                 "tags": ["Jadwal sholat"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "year": {
+                                        "type": "number",
+                                        "example": 2025
+                                    },
+                                    "timezone": {
+                                        "type": "string",
+                                        "example": "Asia/Jakarta"
+                                    },
+                                    "latitude": {
+                                        "type": "number",
+                                        "example": 6.2
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "example": 106.8
+                                    }
+                                },
+                                "required": [
+                                    "year"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Jadwal sholat"
@@ -362,6 +442,17 @@
             "get": {
                 "summary": "Detail ayat Al-Qur'an",
                 "tags": ["Al-Qur'an"],
+                "parameters": [
+                    {
+                        "name": "surahId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 1
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Detail ayat"
@@ -384,6 +475,17 @@
             "get": {
                 "summary": "Daftar kota",
                 "tags": ["Wilayah"],
+                "parameters":[
+                    {
+                        "name": "provinceId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "32"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar kota"
@@ -395,6 +497,17 @@
             "get": {
                 "summary": "Daftar kecamatan",
                 "tags": ["Wilayah"],
+                "parameters":[
+                    {
+                        "name": "cityId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "32.04"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar kecamatan"
@@ -406,6 +519,17 @@
             "get": {
                 "summary": "Daftar kelurahan",
                 "tags": ["Wilayah"],
+                "parameters":[
+                    {
+                        "name": "districtId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "32.04.37"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar kelurahan"
