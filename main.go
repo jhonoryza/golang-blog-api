@@ -6,8 +6,10 @@ import (
 	"api_blog/middleware"
 	"api_blog/wilayah"
 	"database/sql"
+	"embed"
 	"flag"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"time"
@@ -17,6 +19,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 )
+
+//go:embed public/*
+var embeddedFiles embed.FS
 
 func main() {
 	isImport := flag.Bool("import", false, "Run wilayah data import")
@@ -89,30 +94,32 @@ func main() {
 	router.GET("/api/districts", wilayahController.Districts)
 	router.GET("/api/subdistricts", wilayahController.SubDistricts)
 
-	fs := http.FileServer(http.Dir("./public"))
-	router.Handler("GET", "/public/*filepath", http.StripPrefix("/public/", fs))
+	sub, _ := fs.Sub(embeddedFiles, "public")
+    fileServer := http.FileServer(http.FS(sub))
 
-	router.GET("/doc", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		http.ServeFile(w, r, "./public/doc.html")
-	})
+    router.Handler("GET", "/public/*filepath",
+        http.StripPrefix("/public/", fileServer),
+    )
 
-	router.GET("/doc/swagger", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		http.ServeFile(w, r, "./public/swagger.html")
-	})
-
-	router.GET("/doc/redoc", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		http.ServeFile(w, r, "./public/redoc.html")
-	})
-
-	router.GET("/doc/stoplight", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		http.ServeFile(w, r, "./public/stoplight.html")
-	})
-
-	router.GET("/doc/scalar", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		http.ServeFile(w, r, "./public/scalar.html")
-	})
+    router.GET("/doc", serveEmbed("public/doc.html"))
+    router.GET("/doc/swagger", serveEmbed("public/swagger.html"))
+    router.GET("/doc/redoc", serveEmbed("public/redoc.html"))
+    router.GET("/doc/stoplight", serveEmbed("public/stoplight.html"))
+    router.GET("/doc/scalar", serveEmbed("public/scalar.html"))
 
 	fmt.Println("listening on http://localhost:8080")
 	err = http.ListenAndServe(":8080", router)
 	exception.PanicIfErr(err)
+}
+
+func serveEmbed(path string) httprouter.Handle {
+    return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+        data, err := embeddedFiles.ReadFile(path)
+        if err != nil {
+            http.NotFound(w, r)
+            return
+        }
+        w.Header().Set("Content-Type", "text/html")
+        w.Write(data)
+    }
 }
