@@ -51,6 +51,8 @@ func main() {
 
 	router.GET("/", controller.HomeIndex)
 
+	router.GET("/health", controller.HomeIndex)
+
 	authController := controller.NewAuthController(db)
 	router.POST("/api/login", authController.Login)
 
