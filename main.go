@@ -1,10 +1,13 @@
 package main
 
 import (
+	"api_blog/cache"
 	"api_blog/controller"
 	"api_blog/exception"
 	"api_blog/middleware"
 	"api_blog/wilayah"
+	"context"
+	"crypto/tls"
 	"database/sql"
 	"embed"
 	"flag"
@@ -18,6 +21,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
+	"github.com/redis/go-redis/v9"
 )
 
 //go:embed public/*
@@ -44,6 +48,40 @@ func main() {
 	db.SetConnMaxIdleTime(5 * time.Second)
 	db.SetConnMaxLifetime(60 * time.Second)
 	defer db.Close()
+
+	// redis section
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisUsername := os.Getenv("REDIS_USERNAME")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	fmt.Printf("[REDIS] Connecting to: %s\n", redisAddr)
+	fmt.Printf("[REDIS] Username: %s\n", redisUsername)
+
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:            redisAddr,
+		Username:        redisUsername,
+		Password:        redisPassword,
+		DB:              0,
+		DialTimeout:     15 * time.Second,
+		ReadTimeout:     15 * time.Second,
+		WriteTimeout:    15 * time.Second,
+		PoolSize:        10,
+		MinIdleConns:    2,
+		DisableIdentity: true,
+		TLSConfig:       &tls.Config{MinVersion: tls.VersionTLS12},
+	})
+	cacheManager := cache.NewCacheManager(redisClient, 24*time.Hour)
+	defer redisClient.Close()
+
+	// test redis connection
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	pingResult, err := redisClient.Ping(ctx).Result()
+	if err != nil {
+		fmt.Printf("[REDIS] Connection failed: %v\n", err)
+	} else {
+		fmt.Printf("[REDIS] Connected successfully: %s\n", pingResult)
+	}
 
 	// router section
 	router := httprouter.New()
@@ -86,7 +124,7 @@ func main() {
 	serviceController := controller.NewServiceController(db)
 	router.GET("/api/services", serviceController.Index)
 
-	quranController := controller.NewQuranController(db)
+	quranController := controller.NewQuranController(db, cacheManager)
 	router.GET("/api/surah", quranController.Index)
 	router.GET("/api/ayah", quranController.Show)
 
