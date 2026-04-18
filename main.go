@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -41,13 +42,25 @@ func main() {
 	})
 	// database section
 	_ = godotenv.Load()
-	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	dbURL := os.Getenv("DATABASE_URL")
+	fmt.Printf("[DATABASE] Connecting to: %s\n", dbURL)
+
+	db, err := sql.Open("pgx", dbURL)
 	exception.PanicIfErr(err)
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
 	db.SetConnMaxIdleTime(5 * time.Second)
 	db.SetConnMaxLifetime(60 * time.Second)
 	defer db.Close()
+
+	// test database connection
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := db.PingContext(ctx); err != nil {
+		fmt.Printf("[DATABASE] Connection failed: %v\n", err)
+	} else {
+		fmt.Printf("[DATABASE] Connected successfully\n")
+	}
 
 	// redis section
 	redisAddr := os.Getenv("REDIS_ADDR")
@@ -74,9 +87,9 @@ func main() {
 	defer redisClient.Close()
 
 	// test redis connection
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
+	ctx, cancel = context.WithTimeout(context.Background(), 15*time.Second)
 	pingResult, err := redisClient.Ping(ctx).Result()
+	cancel()
 	if err != nil {
 		fmt.Printf("[REDIS] Connection failed: %v\n", err)
 	} else {
@@ -148,7 +161,7 @@ func main() {
     router.GET("/doc/scalar", serveEmbed("public/scalar.html"))
 
 	fmt.Println("listening on http://localhost:8080")
-	err = http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8080", GlobalLogger(router))
 	exception.PanicIfErr(err)
 }
 
@@ -162,4 +175,31 @@ func serveEmbed(path string) httprouter.Handle {
         w.Header().Set("Content-Type", "text/html")
         w.Write(data)
     }
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
+
+func GlobalLogger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		rw := &responseWriter{w, http.StatusOK}
+
+		next.ServeHTTP(rw, r)
+
+		log.Printf("[REQUEST] %s %s -> %d (%v)",
+			r.Method,
+			r.URL.Path,
+			rw.statusCode,
+			time.Since(start),
+		)
+	})
 }
