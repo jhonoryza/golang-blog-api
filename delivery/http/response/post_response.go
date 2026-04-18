@@ -54,11 +54,15 @@ func NewPostResponsesFromOutputs(posts *[]post.PostOutput) *[]PostResponses {
 		authorName := services.CastNilString(p.AuthorName)
 		categoriesName := services.CastNilString(p.CategoriesName)
 		imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + p.ImageUrl
+		publishedAt := ""
+		if p.PublishedAt != nil {
+			publishedAt = p.PublishedAt.In(time.Local).Format(time.RFC822)
+		}
 		postResponses = append(postResponses, PostResponses{
 			Id:             p.Id,
 			Title:          p.Title,
 			ImageUrl:       imageUrl,
-			PublishedAt:    "",
+			PublishedAt:    publishedAt,
 			Summary:        summary,
 			Slug:           slug,
 			IsHighlighted:  p.IsHighlighted,
