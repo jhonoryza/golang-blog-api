@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/redis/go-redis/v9 v9.18.0
 	github.com/schollz/progressbar/v3 v3.18.0
 	golang.org/x/crypto v0.19.0
 )
@@ -28,7 +29,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
-	github.com/redis/go-redis/v9 v9.18.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/net v0.21.0 // indirect

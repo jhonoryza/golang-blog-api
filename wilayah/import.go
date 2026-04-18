@@ -1,7 +1,7 @@
 package wilayah
 
 import (
-	"api_blog/exception"
+	"api_blog/infrastructure/exception"
 	"bufio"
 	"database/sql"
 	"encoding/csv"

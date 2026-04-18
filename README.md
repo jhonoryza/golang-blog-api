@@ -1,6 +1,7 @@
 # API BLOG
 
 ## Stack
+
 - golang 1.22
 - httprouter
 - pgx
@@ -17,4 +18,10 @@ go run main.go
 
 ```bash
 make build && make run
+```
+
+### Test
+
+```bash
+ijhttp test.http
 ```

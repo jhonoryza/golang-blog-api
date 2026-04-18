@@ -9,3 +9,45 @@ GET http://localhost:8080/api/posts/install-multiple-php-version-di-macos
 
 ### Post Show Not found
 GET http://localhost:8080/api/posts/random
+
+### Surah
+GET http://localhost:8080/api/surah
+
+### Surah Detail
+GET http://localhost:8080/api/ayah?surahId=2
+
+### Tool Index
+GET http://localhost:8080/api/tools
+
+### Product Index
+GET http://localhost:8080/api/products
+
+### Product Detail
+GET http://localhost:8080/api/products/1
+
+### Service Index
+GET http://localhost:8080/api/services
+
+### Profile
+GET http://localhost:8080/api/profile
+
+### Timezone Index
+GET http://localhost:8080/api/timezones
+
+### Prayers
+POST http://localhost:8080/api/prayers
+
+### Hijri Calendar
+GET http://localhost:8080/api/hijri/calendar
+
+### Province Index
+GET http://localhost:8080/api/provinces
+
+### City Index
+GET http://localhost:8080/api/cities?provinceId=32
+
+### District Index
+GET http://localhost:8080/api/districts?cityId=32.04
+
+### Village Index
+GET http://localhost:8080/api/villages?districtId=32.04.37
