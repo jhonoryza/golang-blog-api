@@ -5,6 +5,7 @@ import (
 	"api_blog/domain/repositories"
 	request "api_blog/delivery/http/request"
 	"context"
+	"time"
 )
 
 type PostUsecase struct {
@@ -81,11 +82,15 @@ func ToPostOutputs(posts *[]entities.Post) *[]PostOutput {
 	}
 	var result []PostOutput
 	for _, p := range *posts {
+		var publishedAt *time.Time
+		if p.PublishedAt.Valid {
+			publishedAt = &p.PublishedAt.Time
+		}
 		result = append(result, PostOutput{
 			Id:             p.Id,
 			Title:          p.Title,
 			ImageUrl:       p.ImageUrl,
-			PublishedAt:    nil,
+			PublishedAt:    publishedAt,
 			Summary:        p.Summary,
 			Slug:           p.Slug,
 			IsHighlighted:  p.IsHighlighted,
@@ -100,11 +105,15 @@ func ToPostOutput(post *entities.Post) PostOutput {
 	if post == nil {
 		return PostOutput{}
 	}
+	var publishedAt *time.Time
+	if post.PublishedAt.Valid {
+		publishedAt = &post.PublishedAt.Time
+	}
 	return PostOutput{
 		Id:             post.Id,
 		Title:          post.Title,
 		ImageUrl:       post.ImageUrl,
-		PublishedAt:    nil,
+		PublishedAt:    publishedAt,
 		Summary:        post.Summary,
 		Slug:           post.Slug,
 		IsHighlighted:  post.IsHighlighted,
@@ -117,15 +126,27 @@ func ToPostDetailOutput(post *entities.Post) *PostDetailOutput {
 	if post == nil {
 		return nil
 	}
+	var publishedAt *time.Time
+	if post.PublishedAt.Valid {
+		publishedAt = &post.PublishedAt.Time
+	}
+	var createdAt *time.Time
+	if post.CreatedAt.Valid {
+		createdAt = &post.CreatedAt.Time
+	}
+	var updatedAt *time.Time
+	if post.UpdatedAt.Valid {
+		updatedAt = &post.UpdatedAt.Time
+	}
 	return &PostDetailOutput{
 		Id:             post.Id,
 		AuthorId:       post.AuthorId,
 		Title:          post.Title,
 		Content:        post.Content,
 		ImageUrl:       post.ImageUrl,
-		CreatedAt:      &post.CreatedAt.Time,
-		UpdatedAt:      &post.UpdatedAt.Time,
-		PublishedAt:    &post.PublishedAt.Time,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
+		PublishedAt:    publishedAt,
 		Summary:        post.Summary,
 		Slug:           post.Slug,
 		IsMarkdown:     post.IsMarkdown,
