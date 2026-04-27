@@ -34,6 +34,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+//go:embed public/*
 var embeddedFiles embed.FS
 
 func main() {
@@ -108,9 +109,15 @@ func initRedis() *redis.Client {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisUsername := os.Getenv("REDIS_USERNAME")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisTLS := os.Getenv("REDIS_TLS") == "true"
 
 	fmt.Printf("[REDIS] Connecting to: %s\n", redisAddr)
 	fmt.Printf("[REDIS] Username: %s\n", redisUsername)
+	
+	var tlsConfig *tls.Config
+	if redisTLS {
+		tlsConfig = &tls.Config{MinVersion: tls.VersionTLS12}
+	}
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:            redisAddr,
@@ -123,7 +130,7 @@ func initRedis() *redis.Client {
 		PoolSize:        10,
 		MinIdleConns:    2,
 		DisableIdentity: true,
-		TLSConfig:       &tls.Config{MinVersion: tls.VersionTLS12},
+		TLSConfig:       tlsConfig,
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
