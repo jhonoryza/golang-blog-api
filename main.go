@@ -3,9 +3,9 @@ package main
 import (
 	"api_blog/delivery/http/controller"
 	"api_blog/delivery/http/middleware"
-	"api_blog/infrastructure/exception"
 	"api_blog/infrastructure/cache"
 	"api_blog/infrastructure/database"
+	"api_blog/infrastructure/exception"
 	"api_blog/infrastructure/persistence"
 	"api_blog/usecase/auth"
 	"api_blog/usecase/post"
@@ -32,6 +32,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/cors"
 )
 
 //go:embed public/*
@@ -84,8 +85,15 @@ func main() {
 	router.GET("/", controller.HomeIndex)
 	router.GET("/health", controller.HomeIndex)
 
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
+
 	fmt.Println("listening on http://localhost:8080")
-	err := http.ListenAndServe(":8080", GlobalLogger(router))
+	err := http.ListenAndServe(":8080", GlobalLogger(corsMiddleware.Handler(router)))
 	exception.PanicIfErr(err)
 }
 
@@ -113,7 +121,7 @@ func initRedis() *redis.Client {
 
 	fmt.Printf("[REDIS] Connecting to: %s\n", redisAddr)
 	fmt.Printf("[REDIS] Username: %s\n", redisUsername)
-	
+
 	var tlsConfig *tls.Config
 	if redisTLS {
 		tlsConfig = &tls.Config{MinVersion: tls.VersionTLS12}
