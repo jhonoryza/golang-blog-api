@@ -216,6 +216,9 @@ func initControllers(ucs *Usecases, cacheMgr *cache.CacheManager, db *sql.DB) *C
 }
 
 func setupRoutes(router *httprouter.Router, ctrls *Controllers, ucs *Usecases) {
+	router.OPTIONS("/*path", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.WriteHeader(http.StatusNoContent)
+	})
 	router.POST("/api/login", ctrls.Auth.Login)
 
 	router.GET("/api/posts", ctrls.Post.Index)
