@@ -40,6 +40,24 @@ func (c *PostController) Index(w http.ResponseWriter, r *http.Request, p httprou
 	resp.ToJson(w)
 }
 
+func (c *PostController) IndexAll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	input := post.FindAllInput{
+		Search:  r.URL.Query().Get("search"),
+		SortBy:  r.URL.Query().Get("sortBy"),
+		SortDir: r.URL.Query().Get("sortDir"),
+	}
+
+	posts := c.Usecase.FindAllIncludingUnpublished(r.Context(), input)
+	postResponses := response.NewPostResponsesFromOutputs(posts)
+
+	resp := response.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "OK",
+		Data:    postResponses,
+	}
+	resp.ToJson(w)
+}
+
 func (c *PostController) Show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	postSlug := p.ByName("postSlug")
 

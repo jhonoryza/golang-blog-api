@@ -54,6 +54,14 @@ func (r *PostRepository) FindOneById(ctx context.Context, postSlug *string) *ent
 }
 
 func (r *PostRepository) FindAll(ctx context.Context) *[]entities.Post {
+	return r.findAll(ctx, true)
+}
+
+func (r *PostRepository) FindAllIncludingUnpublished(ctx context.Context) *[]entities.Post {
+	return r.findAll(ctx, false)
+}
+
+func (r *PostRepository) findAll(ctx context.Context, publishedOnly bool) *[]entities.Post {
 	search := ctx.Value("search").(string)
 	sortBy := ctx.Value("sortBy").(string)
 	sortDir := ctx.Value("sortDir").(string)
@@ -85,8 +93,13 @@ func (r *PostRepository) FindAll(ctx context.Context) *[]entities.Post {
 				left join users on posts.author_id = users.id
 				left join post_categories on posts.id = post_categories.post_id
 				left join categories on post_categories.category_id = categories.id
-	where posts.published_at is not null
 	`
+
+	if publishedOnly {
+		query += ` where posts.published_at is not null`
+	} else {
+		query += ` where 1=1`
+	}
 
 	args := []any{}
 

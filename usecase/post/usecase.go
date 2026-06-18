@@ -32,6 +32,22 @@ func (u *PostUsecase) FindAll(ctx context.Context, input FindAllInput) *[]PostOu
 	return ToPostOutputs(posts)
 }
 
+func (u *PostUsecase) FindAllIncludingUnpublished(ctx context.Context, input FindAllInput) *[]PostOutput {
+	if input.SortDir == "" {
+		input.SortDir = "desc"
+	}
+	if input.SortBy == "" {
+		input.SortBy = "published_at"
+	}
+
+	ctx = context.WithValue(ctx, "search", input.Search)
+	ctx = context.WithValue(ctx, "sortBy", input.SortBy)
+	ctx = context.WithValue(ctx, "sortDir", input.SortDir)
+
+	posts := u.repo.FindAllIncludingUnpublished(ctx)
+	return ToPostOutputs(posts)
+}
+
 func (u *PostUsecase) FindOneById(ctx context.Context, slug string) *PostDetailOutput {
 	post := u.repo.FindOneById(ctx, &slug)
 	return ToPostDetailOutput(post)

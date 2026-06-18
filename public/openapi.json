@@ -136,6 +136,54 @@
                 }
             }
         },
+        "/api/admin/posts": {
+            "get": {
+                "summary": "Daftar semua post termasuk unpublish (auth)",
+                "description": "Sama seperti GET /api/posts namun TIDAK memfilter published_at, sehingga post draft/unpublish ikut tampil. Memerlukan autentikasi.",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sortDir",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "desc"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "published_at"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar post termasuk unpublish"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/api/posts/{postSlug}": {
             "get": {
                 "summary": "Detail post",

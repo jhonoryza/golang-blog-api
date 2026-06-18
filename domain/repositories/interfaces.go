@@ -8,6 +8,7 @@ import (
 
 type PostRepository interface {
 	FindAll(ctx context.Context) *[]entities.Post
+	FindAllIncludingUnpublished(ctx context.Context) *[]entities.Post
 	FindOneById(ctx context.Context, postSlug *string) *entities.Post
 	FindOneBySlug(postSlug string) (*entities.Post, error)
 	Create(req request.CreatePostRequest) (*entities.Post, error)
