@@ -205,6 +205,118 @@
                 }
             }
         },
+        "/api/uploads/presign": {
+            "post": {
+                "summary": "Presign URL upload gambar ke Cloudflare R2 (auth)",
+                "description": "Menghasilkan presigned PUT URL agar frontend bisa upload gambar langsung ke Cloudflare R2. Format yang didukung: jpg, jpeg, png, webp. Ukuran maksimal 1MB. URL kadaluarsa dalam 5 menit. Setelah upload, kirim nilai `image_path` sebagai `image_url` saat membuat/mengubah post.",
+                "tags": ["Uploads"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "filename": {
+                                        "type": "string",
+                                        "description": "Nama file beserta ekstensi (jpg, jpeg, png, webp)",
+                                        "example": "foto.jpg"
+                                    },
+                                    "size": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "description": "Ukuran file dalam byte. Maksimal 1048576 (1MB).",
+                                        "maximum": 1048576,
+                                        "example": 524288
+                                    }
+                                },
+                                "required": [
+                                    "filename",
+                                    "size"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presigned URL berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "OK"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "upload_url": {
+                                                    "type": "string",
+                                                    "description": "Presigned URL untuk upload (PUT) ke R2",
+                                                    "example": "https://<account_id>.r2.cloudflarestorage.com/webapp/blog/laravelblog/storage/abc123.jpg?X-Amz-Algorithm=..."
+                                                },
+                                                "method": {
+                                                    "type": "string",
+                                                    "example": "PUT"
+                                                },
+                                                "headers": {
+                                                    "type": "object",
+                                                    "description": "Header yang wajib dikirim saat upload (mis. Content-Type)",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": {
+                                                        "Content-Type": "image/jpeg"
+                                                    }
+                                                },
+                                                "key": {
+                                                    "type": "string",
+                                                    "description": "Object key lengkap di R2 (termasuk prefix)",
+                                                    "example": "blog/laravelblog/storage/abc123.jpg"
+                                                },
+                                                "image_path": {
+                                                    "type": "string",
+                                                    "description": "Nilai yang dikirim sebagai image_url saat create/update post (bagian setelah prefix)",
+                                                    "example": "abc123.jpg"
+                                                },
+                                                "public_url": {
+                                                    "type": "string",
+                                                    "description": "URL publik gambar setelah berhasil diupload",
+                                                    "example": "https://webassets.labkita.my.id/blog/laravelblog/storage/abc123.jpg"
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "description": "Masa berlaku presigned URL dalam detik",
+                                                    "example": 300
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Format tidak didukung atau ukuran melebihi 1MB"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/api/tools": {
             "get": {
                 "summary": "Daftar tools",
