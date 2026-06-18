@@ -235,6 +235,7 @@ func setupRoutes(router *httprouter.Router, ctrls *Controllers, ucs *Usecases) {
 	router.GET("/api/posts", ctrls.Post.Index)
 	router.GET("/api/admin/posts", middleware.AuthMiddleware(ucs.User, ctrls.Post.IndexAll))
 	router.GET("/api/posts/:postSlug", ctrls.Post.Show)
+	router.GET("/api/admin/posts/:postSlug", middleware.AuthMiddleware(ucs.User, ctrls.Post.ShowAdmin))
 	router.POST("/api/posts", middleware.AuthMiddleware(ucs.User, ctrls.Post.Store))
 	router.PUT("/api/posts/:postSlug", middleware.AuthMiddleware(ucs.User, ctrls.Post.Update))
 	router.DELETE("/api/posts/:postSlug", middleware.AuthMiddleware(ucs.User, ctrls.Post.Delete))

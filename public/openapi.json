@@ -184,6 +184,36 @@
                 }
             }
         },
+        "/api/admin/posts/{postSlug}": {
+            "get": {
+                "summary": "Detail post termasuk unpublished (auth)",
+                "description": "Sama seperti GET /api/posts/{postSlug} namun TIDAK memfilter published_at, sehingga post draft/unpublish ikut tampil. Memerlukan autentikasi.",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "postSlug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail post termasuk unpublished"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/api/posts/{postSlug}": {
             "get": {
                 "summary": "Detail post",

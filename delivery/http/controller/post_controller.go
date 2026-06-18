@@ -72,6 +72,20 @@ func (c *PostController) Show(w http.ResponseWriter, r *http.Request, p httprout
 	resp.ToJson(w)
 }
 
+func (c *PostController) ShowAdmin(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	postSlug := p.ByName("postSlug")
+
+	postDetail := c.Usecase.FindOneByIdIncludingUnpublished(r.Context(), postSlug)
+	postResponse := response.NewPostResponseFromDetail(postDetail)
+
+	resp := response.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "OK",
+		Data:    postResponse,
+	}
+	resp.ToJson(w)
+}
+
 func (c *PostController) Store(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var req request.CreatePostRequest
 

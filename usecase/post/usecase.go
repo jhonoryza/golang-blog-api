@@ -53,6 +53,11 @@ func (u *PostUsecase) FindOneById(ctx context.Context, slug string) *PostDetailO
 	return ToPostDetailOutput(post)
 }
 
+func (u *PostUsecase) FindOneByIdIncludingUnpublished(ctx context.Context, slug string) *PostDetailOutput {
+	post := u.repo.FindOneByIdIncludingUnpublished(ctx, &slug)
+	return ToPostDetailOutput(post)
+}
+
 func (u *PostUsecase) FindOneBySlug(slug string) (*PostOutput, error) {
 	post, err := u.repo.FindOneBySlug(slug)
 	if err != nil {

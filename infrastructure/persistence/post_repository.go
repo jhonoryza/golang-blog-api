@@ -53,6 +53,27 @@ func (r *PostRepository) FindOneById(ctx context.Context, postSlug *string) *ent
 	return &post
 }
 
+func (r *PostRepository) FindOneByIdIncludingUnpublished(ctx context.Context, postSlug *string) *entities.Post {
+	query := `
+	select posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at,
+       is_markdown, is_highlighted, image_url, users.name, string_agg(categories.name, ',') as categories_name
+	from posts
+			 left join users on posts.author_id = users.id
+			 left join post_categories on posts.id = post_categories.post_id
+			 left join categories on post_categories.category_id = categories.id
+	where posts.slug = $1
+	group by posts.id, title, summary, content, posts.slug, posts.published_at, author_id, posts.created_at, posts.updated_at, is_markdown, is_highlighted, image_url, users.name
+	`
+
+	row := r.DB.QueryRowContext(ctx, query, *postSlug)
+	exception.PanicNotFoundIfErr(row.Err())
+
+	var post entities.Post
+	err := row.Scan(&post.Id, &post.Title, &post.Summary, &post.Content, &post.Slug, &post.PublishedAt, &post.AuthorId, &post.CreatedAt, &post.UpdatedAt, &post.IsMarkdown, &post.IsHighlighted, &post.ImageUrl, &post.AuthorName, &post.CategoriesName)
+	exception.PanicNotFoundIfErr(err)
+	return &post
+}
+
 func (r *PostRepository) FindAll(ctx context.Context) *[]entities.Post {
 	return r.findAll(ctx, true)
 }
