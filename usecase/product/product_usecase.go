@@ -1,7 +1,7 @@
 package product
 
 import (
-	"os"
+	"api_blog/infrastructure/storage"
 )
 
 type ProductUsecase struct{}
@@ -38,7 +38,7 @@ type Product struct {
 }
 
 func (uc *ProductUsecase) FindAll() *[]Product {
-	var baseImageUrl = os.Getenv("IMAGE_BASE_URL") + "/blog/image"
+	var baseImageUrl = storage.PublicBaseURL() + "/blog/image"
 	products := []Product{
 		{
 			ID:          1,

@@ -7,12 +7,14 @@ import (
 	"api_blog/infrastructure/cache"
 	"api_blog/infrastructure/database"
 	"api_blog/infrastructure/persistence"
+	"api_blog/infrastructure/storage"
 	"api_blog/usecase/auth"
 	"api_blog/usecase/post"
 	"api_blog/usecase/product"
 	"api_blog/usecase/quran"
 	"api_blog/usecase/service"
 	"api_blog/usecase/tool"
+	"api_blog/usecase/upload"
 	"api_blog/usecase/user"
 	wilayahUsecase "api_blog/usecase/wilayah"
 	"context"
@@ -58,8 +60,13 @@ func main() {
 	cacheManager := cache.NewCacheManager(redisClient, 24*time.Hour)
 	defer redisClient.Close()
 
+	r2Storage, storageErr := storage.NewR2Storage()
+	if storageErr != nil {
+		fmt.Printf("[STORAGE] R2 not configured: %v\n", storageErr)
+	}
+
 	repos := initRepositories(db)
-	ucs := initUsecases(repos)
+	ucs := initUsecases(repos, r2Storage)
 	ctrls := initControllers(ucs, cacheManager, db)
 
 	router := httprouter.New()
@@ -172,9 +179,10 @@ type Usecases struct {
 	Wilayah *wilayahUsecase.WilayahUsecase
 	Product *product.ProductUsecase
 	Service *service.ServiceUsecase
+	Upload  *upload.UploadUsecase
 }
 
-func initUsecases(repos *Repositories) *Usecases {
+func initUsecases(repos *Repositories, r2Storage *storage.R2Storage) *Usecases {
 	return &Usecases{
 		Post:    post.NewPostUsecase(repos.Post),
 		Tool:    tool.NewToolUsecase(repos.Tool),
@@ -184,6 +192,7 @@ func initUsecases(repos *Repositories) *Usecases {
 		Wilayah: wilayahUsecase.NewWilayahUsecase(repos.Wilayah),
 		Product: product.NewProductUsecase(),
 		Service: service.NewServiceUsecase(),
+		Upload:  upload.NewUploadUsecase(r2Storage),
 	}
 }
 
@@ -198,6 +207,7 @@ type Controllers struct {
 	Quran    *controller.QuranController
 	Wilayah  *controller.WilayahController
 	Timezone *controller.TimezoneController
+	Upload   *controller.UploadController
 }
 
 func initControllers(ucs *Usecases, cacheMgr *cache.CacheManager, db *sql.DB) *Controllers {
@@ -212,6 +222,7 @@ func initControllers(ucs *Usecases, cacheMgr *cache.CacheManager, db *sql.DB) *C
 		Quran:    controller.NewQuranController(ucs.Quran, cacheMgr),
 		Wilayah:  controller.NewWilayahController(ucs.Wilayah, db),
 		Timezone: controller.NewTimezoneController(db),
+		Upload:   controller.NewUploadController(ucs.Upload),
 	}
 }
 
@@ -226,6 +237,8 @@ func setupRoutes(router *httprouter.Router, ctrls *Controllers, ucs *Usecases) {
 	router.POST("/api/posts", middleware.AuthMiddleware(ucs.User, ctrls.Post.Store))
 	router.PUT("/api/posts/:postSlug", middleware.AuthMiddleware(ucs.User, ctrls.Post.Update))
 	router.DELETE("/api/posts/:postSlug", middleware.AuthMiddleware(ucs.User, ctrls.Post.Delete))
+
+	router.POST("/api/uploads/presign", middleware.AuthMiddleware(ucs.User, ctrls.Upload.Presign))
 
 	router.GET("/api/tools", ctrls.Tool.Index)
 	router.POST("/api/tools", middleware.AuthMiddleware(ucs.User, ctrls.Tool.Store))

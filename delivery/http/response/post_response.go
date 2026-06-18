@@ -3,8 +3,8 @@ package response
 import (
 	"api_blog/domain/entities"
 	"api_blog/domain/services"
+	"api_blog/infrastructure/storage"
 	"api_blog/usecase/post"
-	"os"
 	"time"
 )
 
@@ -27,7 +27,7 @@ func NewPostResponses(posts *[]entities.Post) *[]PostResponses {
 		slug := services.CastNilString(post.Slug)
 		authorName := services.CastNilString(post.AuthorName)
 		categoriesName := services.CastNilString(post.CategoriesName)
-		imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + post.ImageUrl
+		imageUrl := storage.ImageURL(post.ImageUrl)
 		postResponses = append(postResponses, PostResponses{
 			Id:             post.Id,
 			Title:          post.Title,
@@ -53,7 +53,7 @@ func NewPostResponsesFromOutputs(posts *[]post.PostOutput) *[]PostResponses {
 		slug := services.CastNilString(p.Slug)
 		authorName := services.CastNilString(p.AuthorName)
 		categoriesName := services.CastNilString(p.CategoriesName)
-		imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + p.ImageUrl
+		imageUrl := storage.ImageURL(p.ImageUrl)
 		publishedAt := ""
 		if p.PublishedAt != nil {
 			publishedAt = p.PublishedAt.In(time.Local).Format(time.RFC822)
@@ -95,7 +95,7 @@ func NewPostResponse(post *entities.Post) *PostResponse {
 	slug := services.CastNilString(post.Slug)
 	authorName := services.CastNilString(post.AuthorName)
 	categoriesName := services.CastNilString(post.CategoriesName)
-	imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + post.ImageUrl
+	imageUrl := storage.ImageURL(post.ImageUrl)
 	return &PostResponse{
 		Id:             post.Id,
 		AuthorId:       post.AuthorId,
@@ -122,7 +122,7 @@ func NewPostResponseFromDetail(postDetail *post.PostDetailOutput) *PostResponse 
 	slug := services.CastNilString(postDetail.Slug)
 	authorName := services.CastNilString(postDetail.AuthorName)
 	categoriesName := services.CastNilString(postDetail.CategoriesName)
-	imageUrl := os.Getenv("IMAGE_BASE_URL") + "/blog/laravelblog/storage/" + postDetail.ImageUrl
+	imageUrl := storage.ImageURL(postDetail.ImageUrl)
 
 	createdAt, updatedAt, publishedAt := "", "", ""
 	if postDetail.CreatedAt != nil {

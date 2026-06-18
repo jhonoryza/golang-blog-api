@@ -2,8 +2,8 @@ package controller
 
 import (
 	"api_blog/delivery/http/response"
+	"api_blog/infrastructure/storage"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -27,7 +27,7 @@ type Project struct {
 	Link        string   `json:"link"`
 }
 
-var baseImageUrl = os.Getenv("IMAGE_BASE_URL") + "/blog/image"
+var baseImageUrl = storage.PublicBaseURL() + "/blog/image"
 
 var projects = []Project{
 	{ID: 1, Year: 2024, Title: "Temubisnis Web Platform", Description: "Provide local or umkm product information", Image: baseImageUrl + "/temubisnis.png", State: "production", Stacks: []string{"PHP 8.2", "Laravel", "Livewire", "Volt", "Filament", "Alpinejs", "Tailwind", "Docker", "Minio", "MySQL", "Redis"}, Link: "https://temubisnis.id"},
